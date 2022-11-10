@@ -8,10 +8,38 @@
 
 DigitalOut led(LED1);
 
-int main() {
+bool pressed[4][4] = { 0 };
+void read_keypad(PortInOut& select, PortInOut& read) {
+	memset(pressed, 0, sizeof(pressed));
+	for (int idx = 0; idx < 4; idx++) {
+		select = ~(1 << idx);
 
-    while (true) {
-        ThisThread::sleep_for(200ms);
-        led = !led;
-    }
+		uint8_t val = ~read;
+
+		for (int i = 0; i < 4; i++) {
+			pressed[idx][i] = (val & (0b00010000 << i)) ? true : false;
+		}
+	}
+}
+
+int main() {
+	PortInOut select(PortB, 0b00001111);
+	select.output();
+	select.mode(OpenDrain);
+
+	PortInOut read(PortB, 0b11110000);
+	read.input();
+	read.mode(PullUp);
+
+
+	while (true) {
+		read_keypad(select, read);
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				printf("%d ", pressed[i][j]);
+			}
+			printf("\n\r");
+		}
+		printf("\n\r");
+	}
 }
