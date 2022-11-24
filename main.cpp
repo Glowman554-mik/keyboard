@@ -10,14 +10,15 @@ DigitalOut led(LED1);
 
 bool pressed[4][4] = { 0 };
 void read_keypad(PortInOut& select, PortInOut& read) {
-	memset(pressed, 0, sizeof(pressed));
+	memset(pressed, 0, sizeof(pressed)); // alle werte in dem array auf false setzen
+
 	for (int idx = 0; idx < 4; idx++) {
-		select = ~(1 << idx);
+		select = ~(1 << idx); // richtige reihe auswählen
 
 		uint8_t val = ~read;
 
-		for (int i = 0; i < 4; i++) {
-			pressed[idx][i] = (val & (0b00010000 << i)) ? true : false;
+		for (int i = 0; i < 4; i++) { 
+			pressed[idx][i] = (val & (0b00010000 << i)) ? true : false; // spalte lesen und in das array schreiben
 		}
 	}
 }
