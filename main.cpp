@@ -4,6 +4,7 @@
  */
 
 #include "mbed.h"
+#include <cstdio>
 
 
 DigitalOut led(LED1);
@@ -14,6 +15,7 @@ void read_keypad(PortInOut& select, PortInOut& read) {
 
 	for (int idx = 0; idx < 4; idx++) {
 		select = ~(1 << idx); // richtige reihe auswählen
+        thread_sleep_for(1);
 
 		uint8_t val = ~read;
 
@@ -22,6 +24,13 @@ void read_keypad(PortInOut& select, PortInOut& read) {
 		}
 	}
 }
+
+const char translations[4][4] = {
+    { '1', '2', '3', 'A' },
+    { '4', '5', '6', 'B' },
+    { '7', '8', '9', 'C' },
+    { '*', '0', '#', 'D' }
+};
 
 int main() {
 	PortInOut select(PortB, 0b00001111);
@@ -35,12 +44,18 @@ int main() {
 
 	while (true) {
 		read_keypad(select, read);
+        printf("\033[H");
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				printf("%d ", pressed[i][j]);
+                if (pressed[i][j]) {
+                    printf("%c ", translations[i][j]);
+                } else {
+                    printf(". ");
+                }
 			}
 			printf("\n\r");
 		}
 		printf("\n\r");
+        thread_sleep_for(50);
 	}
 }
